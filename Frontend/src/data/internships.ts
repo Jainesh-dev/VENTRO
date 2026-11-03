@@ -7,7 +7,10 @@ export interface Internship {
   category: string;
   postedDate: string;
   logo: string;
-  applyLink: string; // ✅ ADDED
+  applyLink: string; 
+  stipend?: string;
+  description?: string;
+  skills?: string[];
 }
 
 export const internships: Internship[] = [

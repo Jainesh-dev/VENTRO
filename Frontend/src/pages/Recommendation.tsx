@@ -1,87 +1,130 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useAuth } from '@/services/authcontext';
-import { RecommendationCard, RecommendedInternship } from '@/components/RecommendationCard';
-import { Button } from '@/components/ui/button';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { ChevronLeft, Sparkles, Compass } from "lucide-react";
+import Navbar from "../components/Navbar";
+import RecommendationCard, { RecommendedInternship } from "../components/RecommendationCard";
 
+interface RecommendationsProps {
+  isDark: boolean;
+  toggleTheme: () => void;
+}
 
-const MOCK_RECOMMENDATIONS: RecommendedInternship[] = [
-  { id: 'rec-1', title: 'Software Engineering Intern', company: 'Linear', location: 'Remote', type: 'Remote', matchScore: 98 },
-  { id: 'rec-2', title: 'Data Analytics Intern', company: 'Vercel', location: 'New York, NY', type: 'Hybrid', matchScore: 94 },
-  { id: 'rec-3', title: 'AI/ML Intern', company: 'Scale AI', location: 'San Francisco, CA', type: 'Onsite', matchScore: 89 },
-  { id: 'rec-4', title: 'Embedded Systems Intern', company: 'Tesla', location: 'Palo Alto, CA', type: 'Onsite', matchScore: 85 }
-];
-
-export const Recommendations: React.FC = () => {
-  const { User } = useAuth();
+export function Recommendations({ isDark, toggleTheme }: RecommendationsProps) {
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [recommendations, setRecommendations] = useState<RecommendedInternship[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulated personalized AI recommendations fetch based on user profile / skills
+    const loadRecommendations = async () => {
+      try {
+        setIsLoading(true);
+        // Using sample high-match recommendations aligned with user target role
+        const mockRecommendations: RecommendedInternship[] = [
+          {
+            id: "rec-1",
+            title: "Backend Engineering Intern",
+            company: "Stripe",
+            location: "San Francisco, CA (Hybrid)",
+            type: "Hybrid",
+            matchScore: 96,
+          },
+          {
+            id: "rec-2",
+            title: "Software Engineer Intern - Distributed Systems",
+            company: "Cloudflare",
+            location: "Austin, TX (Remote)",
+            type: "Remote",
+            matchScore: 94,
+          },
+          {
+            id: "rec-3",
+            title: "AI Infrastructure Engineering Intern",
+            company: "NVIDIA",
+            location: "Santa Clara, CA",
+            type: "On-site",
+            matchScore: 91,
+          },
+          {
+            id: "rec-4",
+            title: "Full Stack Developer Intern",
+            company: "Vercel",
+            location: "Remote",
+            type: "Remote",
+            matchScore: 89,
+          },
+        ];
+
+        setTimeout(() => {
+          setRecommendations(mockRecommendations);
+          setIsLoading(false);
+        }, 800);
+      } catch (error) {
+        console.error("Failed to load recommendations:", error);
+        setIsLoading(false);
+      }
+    };
+
+    loadRecommendations();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0C] text-white py-16 px-6 relative overflow-hidden flex flex-col justify-center items-center">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70vw] h-[30vw] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-screen bg-background text-foreground pb-24 selection:bg-primary/30 font-['Inter'] transition-colors duration-1000 overflow-x-hidden">
+      <Navbar
+        isDark={isDark}
+        toggleTheme={toggleTheme}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
 
-      <div className="w-full max-w-5xl z-10 space-y-10">
-        <div className="text-center space-y-3">
-          <motion.div 
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-semibold"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> Engine Complete
-          </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-extrabold tracking-tight"
-          >
-            Welcome, {User?.firstName || 'Developer'} 🎉
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-gray-400 text-lg max-w-xl mx-auto"
-          >
-            We've compiled optimized application vectors matching your technical profile.
-          </motion.p>
-        </div>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 md:pt-36">
+        
+        {/* HEADER */}
+        <header className="mb-10 md:mb-12">
+          <div className="flex items-center gap-4 sm:gap-5 mb-3">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-tight mt-0.5 font-['Sora']">
+              AI Recommendations
+            </h1>
+          </div>
 
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          {MOCK_RECOMMENDATIONS.map((internship) => (
-            <RecommendationCard key={internship.id} internship={internship} />
-          ))}
-        </motion.div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pl-[56px] sm:pl-[64px] text-base sm:text-lg text-muted-foreground font-normal tracking-tight font-['Inter']">
+            <p>Curated opportunities matched to your master resume and skill profile.</p>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide border border-primary/20 font-['Sora'] w-max">
+              <Sparkles className="w-3.5 h-3.5" /> High-Confidence Matches
+            </div>
+          </div>
+        </header>
 
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4"
-        >
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/internships')}
-            className="w-full sm:w-auto bg-white/5 border-white/10 text-white rounded-xl hover:bg-white/10"
-          >
-            Explore All Recommendations
-          </Button>
-          <Button 
-            onClick={() => navigate('/home')}
-            className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl font-medium flex items-center justify-center gap-2 group"
-          >
-            Continue to Command Center
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </Button>
-        </motion.div>
-      </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="h-48 rounded-3xl bg-card/60 border border-border animate-pulse" />
+            ))}
+          </div>
+        ) : recommendations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl border border-border bg-card/70 backdrop-blur-2xl shadow-xl">
+            <Sparkles className="w-10 h-10 text-primary mb-4" />
+            <h3 className="text-xl font-bold text-foreground mb-2 font-['Sora']">No recommendations available</h3>
+            <p className="text-sm text-muted-foreground mb-6 font-['Inter']">Complete your profile or upload a resume to generate tailored matches.</p>
+            <button
+              onClick={() => navigate("/onboarding")}
+              className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold shadow-md font-['Sora']"
+            >
+              Update Profile Setup
+            </button>
+          </div>
+        ) : (
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
+            {recommendations.map((item) => (
+              <RecommendationCard key={item.id} internship={item} />
+            ))}
+          </section>
+        )}
+
+      </main>
     </div>
   );
-};
+}
+
+export default Recommendations;

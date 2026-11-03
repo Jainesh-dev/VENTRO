@@ -85,7 +85,7 @@ export const Onboarding: React.FC = () => {
     updateField('locations', (formData.locations || []).filter(l => l !== loc));
   };
 
-      const handleNext = async () => {
+      const handleNext = async () => {  
   // Step 1 Validation
   if (step === 1) {
     if (
@@ -136,25 +136,54 @@ export const Onboarding: React.FC = () => {
   }
 
   const user = JSON.parse(
-    localStorage.getItem("User") || "{}"
+    localStorage.getItem("user") || "{}"
+  );
+  console.log(user);
+  console.log("User from localStorage:", user);
+
+ try {
+  console.log("🚀 About to call onboarding API");
+
+  const response = await fetch(
+    "http://127.0.0.1:5001/onboarding/complete",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        college: formData.collegeName,
+        branch: formData.branch,
+        degree: formData.degree,
+        graduation_year: Number(formData.gradYear),
+        skills: formData.skills,
+        interests: formData.interests,
+        preferred_locations: formData.locations,
+      }),
+    }
   );
 
-  try {
-    await fetch(
-      "http://127.0.0.1:5001/onboarding/complete",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_id: user.id,
-        }),
-      }
-    );
-  } catch (err) {
-    console.error(err);
-  }
+  console.log("Sending:", {
+  user_id: user.id,
+  college: formData.collegeName,
+  branch: formData.branch,
+  degree: formData.degree,
+  graduation_year: Number(formData.gradYear),
+  skills: formData.skills,
+  interests: formData.interests,
+  preferred_locations: formData.locations,
+  });
+
+  console.log("Status:", response.status);
+
+  const result = await response.json();
+
+  console.log("Response:", result);
+
+} catch (err) {
+  console.error("Fetch failed:", err);
+}
 
   completeOnboarding(
     formData as UserProfile

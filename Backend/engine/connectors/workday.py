@@ -1,3 +1,4 @@
+
 import requests
 
 url = (
@@ -7,10 +8,23 @@ url = (
 
 payload = {
     "limit": 20,
-    "offset": 0
+    "offset": 0,
+    "searchText": ""
 }
 
-response = requests.post(url, json=payload)
+try:
+    response = requests.post(
+        url,
+        json=payload,
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
+        timeout=20
+    )
 
-print(response.status_code)
-print(response.text[:500])
+    print("Status:", response.status_code)
+    print("Response:", response.text[:1500])
+
+except requests.RequestException as error:
+    print("Request failed:", error)

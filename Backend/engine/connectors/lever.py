@@ -1,78 +1,64 @@
+
 import sys
 import os
+import requests
 
 sys.path.append(
-    os.path.dirname(
-        os.path.dirname(__file__)
-    )
+    os.path.dirname(os.path.dirname(__file__))
 )
-import requests
-from logger import (
-    log_info,
-    log_success,
-    log_error
-)
-from skill_extractor import extract_skills   
+
+from logger import log_info, log_success, log_error
+from skill_extractor import extract_skills
+
 
 def fetch_lever_jobs(slug):
+    url = f"https://api.lever.co/v0/postings/{slug}?mode=json"
 
-    LEVER_URL = (
-    f"https://api.lever.co/v0/postings/{slug}?mode=json"
-)
+    log_info(f"Connecting to Lever: {slug}")
 
-    log_info("Connecting to Lever...")
+    try:
+        response = requests.get(url, timeout=20)
 
-    response = requests.get(LEVER_URL)
+        if response.status_code != 200:
+            log_error(
+                f"Connection Failed (Status Code: {response.status_code})"
+            )
+            log_error(response.text[:300])
+            return []
 
-    if response.status_code != 200:
-        log_error(
-        f"Connection Failed (Status Code: {response.status_code})"
-        )
-        log_error(response.text)
+        jobs = response.json()
+
+        if not isinstance(jobs, list):
+            log_error("Unexpected Lever response format")
+            return []
+
+        log_success("Connected Successfully")
+        log_info(f"Found {len(jobs)} total jobs")
+
+        internships = []
+        keywords = ["intern", "internship", "co-op", "student", "university","graduate"]
+
+        for job in jobs:
+            title = job.get("text", "")
+
+            if any(keyword in title.lower() for keyword in keywords):
+                description = (
+                    job.get("descriptionPlain", "")
+                    or job.get("description", "")
+                    or ""
+                )
+
+                job["skills"] = extract_skills(description)
+                internships.append(job)
+
+        log_success(f"Filtered {len(internships)} internships")
+        return internships
+
+    except (requests.RequestException, ValueError) as error:
+        log_error(f"Lever connector failed: {error}")
         return []
 
-    data = response.json()
-
-    log_success("Connected Successfully")
-    log_info(
-    f"Found {len('jobs')} total jobs"
-    )
-
-    jobs = data
-
-    internships = []
-
-    keywords = [
-        "intern",
-        "internship",
-        "co-op",
-        "student"
-    ]
-
-    for job in jobs:
-
-        title = job["text"].lower()
-
-        if any(keyword in title for keyword in keywords):
-
-            description = job.get("desciptionPlane", "")
-
-            job["skills"] = extract_skills(description)
-
-            internships.append(job)
-
-    log_success(
-    f"Filtered {len(internships)} internships"
-    )
-
-    return internships
 
 if __name__ == "__main__":
-
-    jobs = fetch_lever_jobs("")
-
-    if jobs:
-        print(jobs[0]["title"])
-        print(jobs[0]["skills"])
-    else:
-        print("No jobs found.")
+    jobs = fetch_lever_jobs("leverdemo")
+    print(f"Internships found: {len(jobs)}")

@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 
 sys.path.append(
     os.path.dirname(
@@ -46,21 +47,18 @@ def fetch_greenhouse_jobs(slug):
         "intern",
         "internship",
         "co-op",
-        "student"
+        "co op",
     ]
 
     for job in jobs:
-
         title = job["title"].lower()
 
         if any(
-            keyword in title
+            re.search(r"\b" + re.escape(keyword) + r"\b", title)
             for keyword in keywords
         ):
             description = job.get("content", "")
-
             skills = extract_skills(description)
-
             job["skills"] = skills
 
             internships.append(job)

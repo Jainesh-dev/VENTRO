@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   BrowserRouter,
@@ -8,8 +9,8 @@ import {
 } from "react-router-dom";
 
 import { AuthProvider, useAuth } from "./services/authcontext";
-import Index from "./pages/Index"
-// Existing Pages
+
+import Index from "./pages/Index";
 import Saved from "./pages/Saved";
 import History from "./pages/History";
 import NotFound from "./pages/NotFound";
@@ -17,12 +18,10 @@ import Internships from "./pages/Internships";
 import InternshipDetail from "./pages/InternshipDetail";
 import Dashboard from "./pages/Dashboard";
 
-// Auth Flow Pages
 import { Auth } from "./pages/Auth";
 import { Onboarding } from "./pages/OnBoarding";
 import { Recommendations } from "./pages/Recommendation";
 
-// Components
 import LoadingScreen from "./components/LoadingScreen";
 
 const queryClient = new QueryClient();
@@ -52,6 +51,9 @@ const OnboardingGuard = ({ children }: RouteProps) => {
 };
 
 const AppContent = () => {
+  const { isAuthenticated } = useAuth();
+
+  // THEME
   const [isDark, setIsDark] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
 
@@ -64,8 +66,15 @@ const AppContent = () => {
     ).matches;
   });
 
-  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
+  // Show intro on every fresh application load.
+  const [showIntro, setShowIntro] = useState(true);
+
+  // Track authentication changes without replaying on initial mount.
+  const previousAuth = useRef(isAuthenticated);
+
+  // APPLY THEME AND UPDATE FAVICON
   useEffect(() => {
     const root = document.documentElement;
 
@@ -76,152 +85,194 @@ const AppContent = () => {
       root.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
+
+    const favicon = document.getElementById(
+      "ventro-favicon"
+    ) as HTMLLinkElement | null;
+
+    if (favicon) {
+      favicon.href = isDark
+        ? "/ventro-logo-dark.png"
+        : "/ventro-logo-light.png";
+    }
+
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute(
+        "content",
+        isDark ? "#101010" : "#ffffff"
+      );
   }, [isDark]);
 
+  // PLAY INTRO AFTER LOGIN OR LOGOUT
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2500);
-
-    return () => clearTimeout(timer);
-  }, []);
+    if (previousAuth.current !== isAuthenticated) {
+      previousAuth.current = isAuthenticated;
+      setShowIntro(true);
+    }
+  }, [isAuthenticated]);
 
   const toggleTheme = () => {
     setIsDark((prev) => !prev);
   };
 
-  if (loading) {
-    return <LoadingScreen isDark={isDark} />;
-  }
+  const onSearchChange = (query: string) => {
+    setSearchQuery(query);
+  };
 
   return (
-    <div
-      className={`min-h-screen ${
-        isDark ? "bg-[#050505]" : "bg-[#FBFBFD]"
-      }`}
-    >
-      <BrowserRouter>
-        <Routes>
-          {/* Initial Route */}
-          <Route
-            path="/"
-            element={<Navigate to="/auth" replace /> }
-          />
+    <>
+      <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/"
+              element={<Navigate to="/auth" replace />}
+            />
 
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-              <OnboardingGuard>
-              <Index
-                isDark={isDark}
-                toggleTheme={toggleTheme}
-              />
-              </OnboardingGuard>  
-              </ProtectedRoute>
-            }
-          />
+            {/* HOME */}
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <OnboardingGuard>
+                    <Index
+                      isDark={isDark}
+                      toggleTheme={toggleTheme}
+                    />
+                  </OnboardingGuard>
+                </ProtectedRoute>
+              }
+            />
 
-          {/* Authentication */}
-          <Route path="/auth" element={<Auth />} />
+            {/* AUTHENTICATION */}
+            <Route
+              path="/auth"
+              element={<Auth />}
+            />
 
-          {/* New User Flow */}
-          <Route
-            path="/onboarding"
-            element={
-              <ProtectedRoute>
-                <Onboarding />
-              </ProtectedRoute>
-            }
-          />
+            {/* ONBOARDING */}
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/recommendations"
-            element={
-              <ProtectedRoute>
-                <Recommendations />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Main Website */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <OnboardingGuard>
-                  <Dashboard
+            {/* RECOMMENDATIONS */}
+            <Route
+              path="/recommendations"
+              element={
+                <ProtectedRoute>
+                  <Recommendations
                     isDark={isDark}
                     toggleTheme={toggleTheme}
                   />
-                </OnboardingGuard>
-              </ProtectedRoute>
-            }
-          />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/internships"
-            element={
-              <ProtectedRoute>
-                <OnboardingGuard>
-                  <Internships
-                    isDark={isDark}
-                    toggleTheme={toggleTheme}
-                  />
-                </OnboardingGuard>
-              </ProtectedRoute>
-            }
-          />
+            {/* DASHBOARD */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <OnboardingGuard>
+                    <Dashboard
+                      isDark={isDark}
+                      toggleTheme={toggleTheme}
+                    />
+                  </OnboardingGuard>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/internship/:id"
-            element={
-              <ProtectedRoute>
-                <OnboardingGuard>
-                  <InternshipDetail
-                    isDark={isDark}
-                    toggleTheme={toggleTheme}
-                  />
-                </OnboardingGuard>
-              </ProtectedRoute>
-            }
-          />
+            {/* INTERNSHIPS */}
+            <Route
+              path="/internships"
+              element={
+                <ProtectedRoute>
+                  <OnboardingGuard>
+                    <Internships
+                      isDark={isDark}
+                      toggleTheme={toggleTheme}
+                    />
+                  </OnboardingGuard>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/saved"
-            element={
-              <ProtectedRoute>
-                <OnboardingGuard>
-                  <Saved
-                    isDark={isDark}
-                    toggleTheme={toggleTheme}
-                  />
-                </OnboardingGuard>
-              </ProtectedRoute>
-            }
-          />
+            {/* INTERNSHIP DETAILS */}
+            <Route
+              path="/internship/:id"
+              element={
+                <ProtectedRoute>
+                  <OnboardingGuard>
+                    <InternshipDetail
+                      isDark={isDark}
+                      toggleTheme={toggleTheme}
+                      searchQuery={searchQuery}
+                      onSearchChange={onSearchChange}
+                    />
+                  </OnboardingGuard>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="/history"
-            element={
-              <ProtectedRoute>
-                <OnboardingGuard>
-                  <History
-                    isDark={isDark}
-                    toggleTheme={toggleTheme}
-                  />
-                </OnboardingGuard>
-              </ProtectedRoute>
-            }
-          />
+            {/* SAVED */}
+            <Route
+              path="/saved"
+              element={
+                <ProtectedRoute>
+                  <OnboardingGuard>
+                    <Saved
+                      isDark={isDark}
+                      toggleTheme={toggleTheme}
+                    />
+                  </OnboardingGuard>
+                </ProtectedRoute>
+              }
+            />
 
-          <Route
-            path="*"
-            element={<NotFound />}
-          />
-        </Routes>
-      </BrowserRouter>
-    </div>
+            {/* HISTORY */}
+            <Route
+              path="/history"
+              element={
+                <ProtectedRoute>
+                  <OnboardingGuard>
+                    <History
+                      isDark={isDark}
+                      toggleTheme={toggleTheme}
+                    />
+                  </OnboardingGuard>
+                </ProtectedRoute>
+              }
+            />
+
+            {/* NOT FOUND */}
+            <Route
+              path="*"
+              element={
+                <NotFound
+                  isDark={isDark}
+                  toggleTheme={toggleTheme}
+                />
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </div>
+
+      {/* GLOBAL INTRO OVERLAY */}
+      {showIntro && (
+        <LoadingScreen
+          isDark={isDark}
+          onLoadingComplete={() => setShowIntro(false)}
+        />
+      )}
+    </>
   );
 };
 
