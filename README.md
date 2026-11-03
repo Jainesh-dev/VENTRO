@@ -1,224 +1,172 @@
-# 🚀 InternTracker
+VENTRO
+Discover opportunities. Build your career. Stay organized.
+VENTRO is a career and internship discovery platform designed to help
+students find relevant opportunities and keep their applications
+organized in one place. It brings internship discovery, search and
+filtering, saved opportunities, and application tracking into a single
+experience.
+Project status: In active development.
 
-A modern full-stack internship discovery and tracking platform built to help students find, save, organize, and manage internship opportunities efficiently.
+Contents
+- Overview
+- Features
+- Tech stack
+- Project structure
+- Getting started
+- Environment variables
+- Running the application
+- API overview
+- Development notes
+- Roadmap
+- Contributing
+- License
+Overview
+Searching for internships across multiple platforms can become difficult
+to manage. VENTRO aims to make that process more focused by giving users
+a central place to explore internship listings, narrow results with
+filters, save opportunities, view listing details, and keep track of
+applications.
 
-InternTracker combines a clean Apple-inspired User experience with practical career management tools, allowing Users to discover opportunities, track applications, maintain a resume vault, and monitor their internship journey from a single platform.
-
----
-## Currently under work
-
-## ✨ Features
-
-
-
-### 🔍 Internship Discovery
-
-* Browse internship opportunities from multiple companies.
-* Search internships by role, company, and category.
-* Filter opportunities by:
-
-  * Location
-  * Work Type (Remote, Hybrid, On-Site)
-  * Category
-
-### 🔖 Save Internships
-
-* Save opportunities for future reference.
-* Personal saved internship vault.
-* Quick access to bookmarked positions.
-
-### 📊 Career Tracking
-
-* Track application progress.
-* Monitor applied internships.
-* Maintain application history.
-
-### 📄 Resume Vault
-
-* Upload and store resumes locally.
-* Easy access to documents while applying.
-
-### 🎨 Premium User Experience
-
-* Apple-inspired Liquid Glass UI.
-* Responsive design across desktop and mobile.
-* Smooth animations and micro-interactions.
-* Glassmorphism components and modern visual design.
-
-### 🌙 Dark Mode
-
-* Full dark/light theme support.
-* Seamless theme switching.
-
----
-
-## 🛠 Tech Stack
-
-### Frontend
-
-* React
-* TypeScript
-* React Router
-* Tailwind CSS
-* Lucide React Icons
-* Vite
-
-### Backend
-
-* Python
-* Flask
-* Flask-CORS
-
-### Database
-
-* PostgreSQL (planned integration)
-* Local storage for current tracking features
-
-### Tools & Development
-
-* Git
-* GitHub
-* VS Code
-
----
-
-## 🏗 Project Architecture
-
-```text
-InternTracker
-│
-├── Backend
-│   ├── routes
-│   ├── services
-│   ├── database
-│   ├── models
-│   └── config
-│
-├── Frontend
-│   ├── src
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── hooks
-│   │   ├── data
-│   │   └── app
-│   │
-│   └── public
-│
+The interface follows a clean, monochrome visual direction with light
+and dark themes.
+Features
+- Internship discovery --- browse internship opportunities served
+  by the backend.
+- Search --- find opportunities by role, company, or relevant
+  listing information.
+- Filters --- narrow listings using available criteria such as
+  location, company, internship type, category, experience, remote
+  status, and saved status.
+- Internship details --- open a listing to review its information
+  and application link.
+- Saved internships --- save and remove opportunities for later.
+- Recently viewed --- record internships opened by the user.
+- Authentication --- backend routes use JWT bearer-token
+  authentication where required.
+- Theme support --- switch between light and dark appearances.
+Feature availability may vary as development continues.
+Tech stack
+  Layer              Technologies
+  Frontend           React, TypeScript, Vite
+Styling and UI     Tailwind CSS, Framer Motion, Lucide React
+Routing            React Router
+Backend            Python, Flask
+Database           PostgreSQL
+Authentication     JWT
+Password hashing   bcrypt
+Project structure
+The repository is organized into frontend and backend applications:
+InternTracker/
+├── Backend/
+│   ├── database/
+│   ├── middleware/
+│   ├── services/
+│   └── app.py
+├── Frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── ...
+│   └── package.json
 └── README.md
-```
-
----
-
-## 🚀 Getting Started
-
-### Clone Repository
-
-```bash
-git clone https://github.com/Jainesh-dev/InternTracker.git
+Your local structure may contain additional folders and files.
+Getting started
+Prerequisites
+Install the following before running the project: - Git - Node.js and
+npm - Python 3 - PostgreSQL
+1. Clone the repository
+git clone <YOUR_REPOSITORY_URL>
 cd InternTracker
-```
+2. Set up the backend
+cd Backend
+python -m venv venv
+Activate the virtual environment:
 
-### Frontend Setup
-
-```bash
+Windows PowerShell
+.\venv\Scripts\Activate.ps1
+macOS / Linux
+source venv/bin/activate
+Install backend dependencies:
+python -m pip install -r requirements.txt
+If requirements.txt is not present yet, install the dependencies used
+by the current backend:
+python -m pip install Flask flask-cors psycopg2-binary bcrypt python-dotenv PyJWT google-auth
+Configure the database and environment variables before starting the
+server.
+3. Set up the frontend
+Open a second terminal:
 cd Frontend
 npm install
-npm run dev
-```
+If the frontend uses a local API URL, configure it as described below.
+Environment variables
+Create the environment file expected by your backend configuration
+(commonly Backend/.env). Do not commit secrets or real credentials.
 
-Frontend runs at:
-
-```text
-http://localhost:5173
-```
-
-### Backend Setup
-
-```bash
-cd Backend
-
-pip install -r requirements.txt
-
+Example template --- adjust the variable names to match the
+configuration read by your backend:
+DATABASE_URL=postgresql://USERNAME:PASSWORD@localhost:5432/DATABASE_NAME
+JWT_SECRET_KEY=replace_with_a_long_random_secret
+If your frontend uses VITE_API_URL, configure it in Frontend/.env:
+VITE_API_URL=http://127.0.0.1:5001
+Vite exposes variables prefixed with VITE_ to browser code. Never put
+database passwords, private API keys, or signing secrets in frontend
+environment variables.
+Running the application
+Start the backend from the Backend directory:
 python app.py
-```
-
-Backend runs at:
-
-```text
+The development API is expected at:
 http://127.0.0.1:5001
-```
+Start the frontend in a separate terminal:
+cd Frontend
+npm run dev
+Vite will print the local frontend URL in the terminal (commonly
+http://localhost:5173).
+API overview
+The frontend currently uses backend routes in these areas:
+  Method                  Route                     Purpose
+  GET                   /internships            Retrieve internship
+listings
 
----
+  GET                   /internships/<id>       Retrieve one internship
 
-## 🎯 Future Roadmap
+  GET                   /saved                  Retrieve the user's
+saved internships
 
-### Phase 1
+  POST                  /saved/<id>             Save an internship
 
-* Internship Search
-* Saved Internships
-* Application Tracking
-* Resume Vault
-
-### Phase 2
-
-* User Authentication
-* Personalized Dashboard
-* Internship Recommendations
-* Resume Parsing
-
-### Phase 3
-
-* AI Career Assistant
-* ATS Resume Analyzer
-* Interview Preparation Module
-* Smart Internship Matching Engine
-
-### Phase 4
-
-* Real-time Internship Aggregation
-* Company Analytics
-* Recruiter Dashboard
-* Mobile Application
-
----
-
-## 💡 Why I Built This
-
-As a student applying to internships, I found it difficult to manage opportunities scattered across multiple websites and spreadsheets.
-
-InternTracker was created to provide a centralized platform where students can:
-
-* Discover internships
-* Save opportunities
-* Track applications
-* Manage resumes
-* Organize their career journey
-
-while learning modern full-stack development practices.
-
----
-
-## 👨‍💻 Author
-
-**Jainesh Patel**
-
-Electronics & Telecommunication Engineering Student
-
-Focused on:
-
-* Backend Development
-* Software Engineering
-* Systems Design
-* Automation
-* Full Stack Development
-
-GitHub:
-https://github.com/Jainesh-dev
-
----
-
-## ⭐ Support
-
-If you find this project useful, consider giving it a star.
-
-It helps the project grow and motivates future development.
+  DELETE                /saved/<id>             Remove a saved
+internship
+POST                  /recently-viewed/<id>   Record a recently
+viewed internship
+Authentication requirements and request/response formats depend on the
+backend route implementation. Send the JWT as a bearer token for
+protected endpoints:
+Authorization: Bearer <YOUR_JWT_TOKEN>
+Development notes
+- Keep backend secrets in environment variables; never commit .env
+  files.
+- Keep Backend/requirements.txt up to date when Python dependencies
+  change.
+- Use the backend's database IDs when linking to internship detail
+  pages.
+- The frontend API base URL should match the port on which Flask is
+  running.
+- For local development, run the backend and frontend in separate
+  terminals.
+Roadmap
+Potential next steps as the project evolves: - Improve opportunity
+discovery and relevance. - Expand application tracking and status
+management. - Improve resume tailoring workflows. - Add further
+automation around application organization. - Strengthen testing,
+deployment, and documentation.
+Contributing
+Contributions and suggestions are welcome.
+1. Fork the repository.
+2. Create a feature branch: git checkout -b feature/your-feature.
+3. Make focused changes and test them locally.
+4. Commit your changes: git commit -m "Add: your feature".
+5. Push your branch and open a pull request.
+License
+No license has been specified yet. Unless a license is added to this
+repository, all rights remain with the copyright holder and reuse is not
+automatically granted.
