@@ -1,6 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Briefcase, MapPin, Building, Sparkles } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Briefcase, MapPin, Building, Sparkles } from "lucide-react";
 
 export interface RecommendedInternship {
   id: string;
@@ -18,31 +18,41 @@ interface RecommendationCardProps {
 export const RecommendationCard: React.FC<RecommendationCardProps> = ({ internship }) => {
   return (
     <motion.div
-      whileHover={{ y: -4, scale: 1.01 }}
-      className="p-6 rounded-3xl border border-border bg-card/60 backdrop-blur-2xl relative overflow-hidden flex flex-col justify-between shadow-sm transition-all duration-300 hover:shadow-xl"
+      whileHover={{ y: -3 }}
+      className="relative flex h-full min-h-0 flex-col justify-between overflow-hidden rounded-3xl border border-border bg-card/60 p-4 shadow-sm backdrop-blur-2xl transition-all duration-300 hover:border-foreground/20 hover:shadow-lg sm:p-5"
     >
-      {/* Absolute badge container */}
-      <div className="absolute top-0 right-0 bg-primary/10 border-l border-b border-border px-3 py-1.5 rounded-bl-2xl flex items-center gap-1.5 backdrop-blur-xl">
-        <Sparkles className="w-3.5 h-3.5 text-primary" />
-        <span className="text-xs font-semibold text-primary">{internship.matchScore}% Match</span>
-      </div>
-
       <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Building className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-muted-foreground">{internship.company}</span>
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <Building className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="truncate text-xs font-medium tracking-wide text-muted-foreground sm:text-sm">
+              {internship.company}
+            </span>
+          </div>
+          <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-muted/50 px-2.5 py-1">
+            <Sparkles className="h-3 w-3 text-foreground" />
+            <span className="text-[10px] font-semibold text-foreground sm:text-xs">
+              {internship.matchScore}% Match
+            </span>
+          </div>
         </div>
-        <h3 className="text-xl font-bold text-foreground mb-4 tracking-tight font-['Sora']">{internship.title}</h3>
+
+        <h3 className="line-clamp-2 font-['Sora'] text-base font-semibold leading-snug tracking-tight text-foreground sm:text-lg">
+          {internship.title}
+        </h3>
       </div>
 
-      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <MapPin className="w-4 h-4 text-muted-foreground/80" />
-          <span>{internship.location}</span>
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/70 pt-3">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <MapPin className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <span className="truncate text-xs text-muted-foreground">
+            {internship.location}
+          </span>
         </div>
+
         <div className="flex items-center gap-1.5">
-          <Briefcase className="w-4 h-4 text-muted-foreground/80" />
-          <span className="px-2.5 py-1 rounded-full bg-muted/60 border border-border text-xs text-foreground font-medium">
+          <Briefcase className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+          <span className="rounded-full border border-border bg-muted/50 px-2.5 py-1 text-[10px] font-medium text-foreground">
             {internship.type}
           </span>
         </div>

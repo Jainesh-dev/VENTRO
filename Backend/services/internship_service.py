@@ -333,7 +333,7 @@ def finish_onboarding(data):
         data["graduation_year"],
         data["skills"],
         data["interests"],
-        data["preferred_locations"]
+        data.get("preferred_locations",[])
     )
 
     complete_onboarding(data["user_id"])

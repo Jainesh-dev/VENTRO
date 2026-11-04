@@ -14,6 +14,7 @@ export interface UserProfile {
   skills: string[];
   internshipType: 'Remote' | 'Hybrid' | 'Onsite';
   locations: string[];
+  preferredLocations?: string[];
   weeklyGoal: number;
 }
 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Sparkles, Compass } from "lucide-react";
-import Navbar from "../components/Navbar";
+import { ChevronLeft, Sparkles, ArrowUpRight } from "lucide-react";
 import RecommendationCard, { RecommendedInternship } from "../components/RecommendationCard";
 
 interface RecommendationsProps {
@@ -9,119 +8,108 @@ interface RecommendationsProps {
   toggleTheme: () => void;
 }
 
-export function Recommendations({ isDark, toggleTheme }: RecommendationsProps) {
+export function Recommendations({ isDark }: RecommendationsProps) {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [recommendations, setRecommendations] = useState<RecommendedInternship[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulated personalized AI recommendations fetch based on user profile / skills
     const loadRecommendations = async () => {
       try {
         setIsLoading(true);
-        // Using sample high-match recommendations aligned with user target role
         const mockRecommendations: RecommendedInternship[] = [
-          {
-            id: "rec-1",
-            title: "Backend Engineering Intern",
-            company: "Stripe",
-            location: "San Francisco, CA (Hybrid)",
-            type: "Hybrid",
-            matchScore: 96,
-          },
-          {
-            id: "rec-2",
-            title: "Software Engineer Intern - Distributed Systems",
-            company: "Cloudflare",
-            location: "Austin, TX (Remote)",
-            type: "Remote",
-            matchScore: 94,
-          },
-          {
-            id: "rec-3",
-            title: "AI Infrastructure Engineering Intern",
-            company: "NVIDIA",
-            location: "Santa Clara, CA",
-            type: "On-site",
-            matchScore: 91,
-          },
-          {
-            id: "rec-4",
-            title: "Full Stack Developer Intern",
-            company: "Vercel",
-            location: "Remote",
-            type: "Remote",
-            matchScore: 89,
-          },
+          { id: "rec-1", title: "Backend Engineering Intern", company: "Stripe", location: "San Francisco, CA (Hybrid)", type: "Hybrid", matchScore: 96 },
+          { id: "rec-2", title: "Software Engineer Intern - Distributed Systems", company: "Cloudflare", location: "Austin, TX (Remote)", type: "Remote", matchScore: 94 },
+          { id: "rec-3", title: "AI Infrastructure Engineering Intern", company: "NVIDIA", location: "Santa Clara, CA", type: "On-site", matchScore: 91 },
+          { id: "rec-4", title: "Full Stack Developer Intern", company: "Vercel", location: "Remote", type: "Remote", matchScore: 89 },
         ];
-
         setTimeout(() => {
           setRecommendations(mockRecommendations);
           setIsLoading(false);
-        }, 800);
+        }, 500);
       } catch (error) {
         console.error("Failed to load recommendations:", error);
         setIsLoading(false);
       }
     };
-
     loadRecommendations();
   }, []);
 
   return (
-    <div className="min-h-screen bg-background text-foreground pb-24 selection:bg-primary/30 font-['Inter'] transition-colors duration-1000 overflow-x-hidden">
-      <Navbar
-        isDark={isDark}
-        toggleTheme={toggleTheme}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 md:pt-36">
-        
-        {/* HEADER */}
-        <header className="mb-10 md:mb-12">
-          <div className="flex items-center gap-4 sm:gap-5 mb-3">
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground leading-tight mt-0.5 font-['Sora']">
-              AI Recommendations
-            </h1>
+    <div className={`${isDark ? "dark" : ""} h-screen w-full overflow-hidden bg-background text-foreground font-['Inter'] transition-colors duration-500`}>
+      <main className="mx-auto flex h-full max-w-7xl flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-12">
+        <header className="shrink-0 mb-6 sm:mb-8">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-border bg-card/70 shadow-sm backdrop-blur-xl">
+              <Sparkles className="h-4 w-4 text-foreground" />
+            </div>
+            <span className="text-[10px] font-semibold tracking-[0.25em] text-muted-foreground uppercase">
+              VENTRO / DISCOVER
+            </span>
           </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 pl-[56px] sm:pl-[64px] text-base sm:text-lg text-muted-foreground font-normal tracking-tight font-['Inter']">
-            <p>Curated opportunities matched to your master resume and skill profile.</p>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold tracking-wide border border-primary/20 font-['Sora'] w-max">
-              <Sparkles className="w-3.5 h-3.5" /> High-Confidence Matches
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h1 className="font-['Sora'] text-3xl font-semibold tracking-tight sm:text-4xl">
+                Recommended <span className="text-muted-foreground">for you.</span>
+              </h1>
+              <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
+                Opportunities selected around your skills, interests and career goals.
+              </p>
+            </div>
+            <div className="hidden sm:flex items-center gap-2 rounded-full border border-border bg-card/60 px-3.5 py-2 backdrop-blur-xl">
+              <span className="h-1.5 w-1.5 rounded-full bg-foreground" />
+              <span className="text-[10px] font-medium tracking-wider text-muted-foreground uppercase">
+                Your opportunity feed
+              </span>
             </div>
           </div>
         </header>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-48 rounded-3xl bg-card/60 border border-border animate-pulse" />
-            ))}
-          </div>
-        ) : recommendations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 px-4 text-center rounded-3xl border border-border bg-card/70 backdrop-blur-2xl shadow-xl">
-            <Sparkles className="w-10 h-10 text-primary mb-4" />
-            <h3 className="text-xl font-bold text-foreground mb-2 font-['Sora']">No recommendations available</h3>
-            <p className="text-sm text-muted-foreground mb-6 font-['Inter']">Complete your profile or upload a resume to generate tailored matches.</p>
-            <button
-              onClick={() => navigate("/onboarding")}
-              className="px-6 py-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold shadow-md font-['Sora']"
-            >
-              Update Profile Setup
-            </button>
-          </div>
-        ) : (
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-fr">
-            {recommendations.map((item) => (
-              <RecommendationCard key={item.id} internship={item} />
-            ))}
-          </section>
-        )}
+        <section className="min-h-0 flex-1">
+          {isLoading ? (
+            <div className="grid h-full grid-cols-1 grid-rows-4 gap-3 sm:grid-cols-2 sm:grid-rows-2 sm:gap-5">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="min-h-0 rounded-3xl border border-border bg-card/50 animate-pulse backdrop-blur-xl" />
+              ))}
+            </div>
+          ) : recommendations.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center rounded-3xl border border-border bg-card/50 px-5 text-center shadow-xl backdrop-blur-2xl">
+              <Sparkles className="mb-4 h-9 w-9 text-muted-foreground" />
+              <h3 className="font-['Sora'] text-xl font-semibold">Nothing here yet.</h3>
+              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                Complete your profile or upload a resume to discover relevant opportunities.
+              </p>
+              <button
+                onClick={() => navigate("/onboarding")}
+                className="mt-5 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-80"
+              >
+                Update Profile <ArrowUpRight className="ml-1 inline h-4 w-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="grid h-full grid-cols-1 grid-rows-4 gap-3 sm:grid-cols-2 sm:grid-rows-2 sm:gap-5">
+              {recommendations.map((item) => (
+                <div
+                  key={item.id}
+                  className="group min-h-0 overflow-hidden rounded-3xl border border-border bg-card/50 shadow-sm backdrop-blur-2xl transition-all duration-300 hover:border-foreground/20 hover:shadow-lg"
+                >
+                  <RecommendationCard internship={item} />
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
+       <footer className="flex shrink-0 justify-end pt-4 sm:pt-5">
+  <button
+    onClick={() => navigate("/")}
+    aria-label="Back to Home"
+    className="group flex items-center gap-2 rounded-full border border-border bg-card/70 px-5 py-2.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-foreground/30 hover:bg-accent hover:text-foreground"
+  >
+    Back to Home
+    <ChevronLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-1" />
+  </button>
+</footer>
       </main>
     </div>
   );
